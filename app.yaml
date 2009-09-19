@@ -1,0 +1,11 @@
+application: pysigbot
+version: 0-0-1
+runtime: python
+api_version: 1
+
+inbound_services:
+- xmpp_message
+
+handlers:
+- url: /.*
+  script: main.py
