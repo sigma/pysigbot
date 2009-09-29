@@ -1,3 +1,5 @@
+from bot.users import User
+
 class Command(object):
 
     @classmethod
@@ -7,7 +9,11 @@ class Command(object):
             if inst is not None:
                 answer = inst.run()
                 if answer is not None:
-                    message.reply(answer)
+                    if type(answer) is list:
+                        for line in answer:
+                            message.reply(line)
+                    else:
+                        message.reply(answer)
                 else:
                     message.reply("Ack !")
                 return
@@ -19,13 +25,13 @@ class Command(object):
 
     def __init__(self, txt, sender):
         self.args = self.tokenizeArguments(txt)
-        self.sender = self.parseSender(sender)
+        self.sender = self.getSender(sender)
 
     def tokenizeArguments(self, txt):
         return txt.split()
 
-    def parseSender(self, sender):
-        return sender.partition("/")[0]
+    def getSender(self, sender):
+        return User(sender.partition("/")[0])
 
     def run(self):
         pass
@@ -43,10 +49,19 @@ class PrefixCommand(Command):
                     return inst
             return None
         pref = cls.PREFIX.lower()
-        if txt[0:len(pref)].lower() == pref:
-            return cls(txt, sender)
+        cmd, sep, rest = txt.partition(' ')
+        rest = rest.strip()
+        if cmd.lower() == pref:
+            for c in cls.__subclasses__():
+                inst = c.accept(rest, sender)
+                if inst is not None:
+                    return inst
+            return cls(rest, sender)
         else:
             return None
+
+    def tokenizeArguments(self, txt):
+        return [txt]
 
 from bot.plugins import *
 

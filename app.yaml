@@ -7,5 +7,9 @@ inbound_services:
 - xmpp_message
 
 handlers:
+- url: /admin/.*
+  script: admin.py
+  login: admin
+
 - url: /.*
   script: main.py
