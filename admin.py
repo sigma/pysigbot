@@ -7,8 +7,8 @@ class AdminHandler(webapp.RequestHandler):
     def get(self):
         user = users.GetCurrentUser()
 
-        user_role = db.GqlQuery("SELECT * FROM UserRole WHERE account = :1", user).get()
-        if user_role is not None:
+        u = db.GqlQuery("SELECT * FROM UserRole WHERE account = :1", user).get()
+        if u is not None:
             u.role = UserRole._ADMIN_ROLE
             u.put()
         else:

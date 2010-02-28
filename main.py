@@ -17,12 +17,13 @@ class WebHandler(webapp.RequestHandler):
         self.response.out.write("""Hello, %s.
         <a href='%s'>Logout</a>""" % (user.nickname(), users.create_logout_url("/")))
 
-application = webapp.WSGIApplication([('/_ah/xmpp/message/chat/', XMPPHandler),
-                                      ('/', WebHandler)],
-                                     debug=True)
+def application():
+    return webapp.WSGIApplication([('/_ah/xmpp/message/chat/', XMPPHandler),
+                                   ('/', WebHandler)],
+                                  debug=True)
 
 def main():
-    run_wsgi_app(application)
+    run_wsgi_app(application())
 
 if __name__ == "__main__":
     main()

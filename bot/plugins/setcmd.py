@@ -29,7 +29,7 @@ class SetCmd(PrefixCommand):
 
 class SetAdminCmd(SetCmd):
 
-    PREFIX = 'admin'
+    PREFIX = '--admin'
 
     def run(self):
         if self.sender.isAdmin():
