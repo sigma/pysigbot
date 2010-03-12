@@ -1,18 +1,18 @@
 from google.appengine.api import xmpp, users
 from google.appengine.ext import webapp, db
 from google.appengine.ext.webapp.util import run_wsgi_app
-from models import UserRole
+from models import DbUserRole
 
 class AdminHandler(webapp.RequestHandler):
     def get(self):
         user = users.GetCurrentUser()
 
-        u = db.GqlQuery("SELECT * FROM UserRole WHERE account = :1", user).get()
+        u = db.GqlQuery("SELECT * FROM DbUserRole WHERE account = :1", user).get()
         if u is not None:
-            u.role = UserRole._ADMIN_ROLE
+            u.role = DbUserRole._ADMIN_ROLE
             u.put()
         else:
-            u = UserRole(role=UserRole._ADMIN_ROLE,
+            u = DbUserRole(role=DbUserRole._ADMIN_ROLE,
                          account=user)
             u.put()
 

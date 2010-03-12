@@ -2,7 +2,7 @@ from google.appengine.ext import db
 from google.appengine.api.datastore_errors import BadQueryError
 
 from bot.commands import PrefixCommand
-from models import UserVariable, AdminVariable
+from models import DbUserVariable, DbAdminVariable
 
 class SetCmd(PrefixCommand):
 
@@ -24,7 +24,7 @@ class SetCmd(PrefixCommand):
         return l
 
     def run(self):
-        self._setVariable(UserVariable, '%s/%s' % (self.sender, self.args[0]), self.args[1])
+        self._setVariable(DbUserVariable, '%s/%s' % (self.sender, self.args[0]), self.args[1])
         return "Variable '%s' has been set" % (self.args[0])
 
 class SetAdminCmd(SetCmd):
@@ -33,7 +33,7 @@ class SetAdminCmd(SetCmd):
 
     def run(self):
         if self.sender.isAdmin():
-            self._setVariable(AdminVariable, self.args[0], self.args[1])
+            self._setVariable(DbAdminVariable, self.args[0], self.args[1])
             return "Admin variable '%s' has been set" % (self.args[0])
         else:
             return "You must be an admin to do so"

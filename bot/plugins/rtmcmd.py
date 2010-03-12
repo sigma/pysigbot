@@ -15,9 +15,9 @@ class RtmRepository(object):
             rtm = None
 
         if rtm is None:
-            api = db.GqlQuery("SELECT * FROM AdminVariable WHERE name = :1", "rtm.api").get().value
-            secret = db.GqlQuery("SELECT * FROM AdminVariable WHERE name = :1", "rtm.secret").get().value
-            token = db.GqlQuery("SELECT * FROM UserVariable WHERE name = :1", "%s/rtm.token" % (user)).get().value
+            api = db.GqlQuery("SELECT * FROM DbAdminVariable WHERE name = :1", "rtm.api").get().value
+            secret = db.GqlQuery("SELECT * FROM DbAdminVariable WHERE name = :1", "rtm.secret").get().value
+            token = db.GqlQuery("SELECT * FROM DbUserVariable WHERE name = :1", "%s/rtm.token" % (user)).get().value
             rtm = Rtm(api, secret, token)
             try:
                 if not memcache.add(rtmkey, rtm, 36000):
