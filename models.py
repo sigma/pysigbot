@@ -38,16 +38,18 @@ class _Variable(object):
 
     def get(self, default=None, create=False):
         try:
-            res = self._getModelObject().get()
+            mo = self._getModelObject()
         except BadQueryError, e:
-            res = default
+            mo = None
+        if mo is None:
+            mo = self._createModelObject(default)
             if create:
-                self.set(res, create=True)
-        return res
+                mo.put()
+        return mo.value
 
     def set(self, value, create=True):
         try:
-            mo = self._getModelObject().get()
+            mo = self._getModelObject()
         except BadQueryError, e:
             mo = None
 
@@ -55,7 +57,16 @@ class _Variable(object):
             if not create:
                 raise NoSuchVariable(self.__repr__())
             mo = self._createModelObject(value)
+        mo.value = value
         mo.put()
+
+    def delete(self):
+        try:
+            mo = self._getModelObject()
+        except BadQueryError, e:
+            mo = None
+        if mo is not None:
+            mo.delete()
 
 class AdminVariable(_Variable):
 
@@ -63,7 +74,7 @@ class AdminVariable(_Variable):
         _Variable.__init__(self, name)
 
     def _getModelObject(self):
-        return db.GqlQuery("SELECT * FROM DbAdminVariable WHERE name = :1", self._name)
+        return db.GqlQuery("SELECT * FROM DbAdminVariable WHERE name = :1", self._name).get()
 
     def _createModelObject(self, value):
         return DbAdminVariable(name=self._name, value=value)
@@ -78,8 +89,7 @@ class UserVariable(_Variable):
         return "%s/%s/%s" % (self.__class__, self._user, self._name)
 
     def _getModelObject(self):
-        return db.GqlQuery("SELECT * FROM DbUserVariable WHERE name = :1 and user = :2", self._name, self._user)
+        return db.GqlQuery("SELECT * FROM DbUserVariable WHERE name = :1 and user = :2", self._name, self._user).get()
 
     def _createModelObject(self, value):
-        obj = DbAdminVariable(user=self._user, name=self._name, value=value)
-        return obj
+        return DbUserVariable(user=self._user, name=self._name, value=value)
