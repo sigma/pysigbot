@@ -12,11 +12,57 @@ class TestModelVariables(TestCase):
         self.user_var.delete()
         self.admin_var.delete()
 
-    def testGetUserVariable(self):
+    def _testDeleteNonExistingVariable(self, var):
+        self.assertEqual(var.get(), None)
+        self.user_var.delete()
+        self.assertEqual(var.get(), None)
+
+    def testDeleteNonExistingUserVariable(self):
+        self._testDeleteNonExistingVariable(self.user_var)
+
+    def testDeleteNonExistingAdminVariable(self):
+        self._testDeleteNonExistingVariable(self.admin_var)
+
+    def _testDeleteExistingVariable(self, var):
+        var.set("plop")
+        var.delete()
+        self.assertEqual(var.get(), None)
+
+    def testDeleteExistingUserVariable(self):
+        self._testDeleteExistingVariable(self.user_var)
+
+    def testDeleteExistingAdminVariable(self):
+        self._testDeleteExistingVariable(self.admin_var)
+
+    def _testGetVariable(self, var):
         ref_value = "plop"
-        self.user_var.set(ref_value)
-        self.assertEqual(self.user_var.get(), ref_value)
+        var.set(ref_value)
+        self.assertEqual(var.get(), ref_value)
+
+    def testGetUserVariable(self):
+        self._testGetVariable(self.user_var)
+
+    def testGetAdminVariable(self):
+        self._testGetVariable(self.admin_var)
+
+    def _testGetVariableDefault(self, var):
+        ref_value = "plopi"
+        self.assertEqual(var.get(ref_value), ref_value)
+        self.assertEqual(var.get(), None)
 
     def testGetUserVariableDefault(self):
+        self._testGetVariableDefault(self.user_var)
+
+    def testGetAdminVariableDefault(self):
+        self._testGetVariableDefault(self.admin_var)
+
+    def _testGetVariableSet(self, var):
         ref_value = "plopi"
-        self.assertEqual(self.user_var.get(ref_value), ref_value)
+        self.assertEqual(var.get(ref_value, create=True), ref_value)
+        self.assertEqual(var.get(), ref_value)
+
+    def testGetUserVariableSet(self):
+        self._testGetVariableSet(self.user_var)
+
+    def testGetAdminVariableSet(self):
+        self._testGetVariableSet(self.admin_var)
