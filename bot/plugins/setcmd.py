@@ -2,7 +2,7 @@ from google.appengine.ext import db
 from google.appengine.api.datastore_errors import BadQueryError
 
 from bot.commands import PrefixCommand
-from models import DbUserVariable, DbAdminVariable
+from common.models import DbUserVariable, DbAdminVariable
 
 class SetCmd(PrefixCommand):
 

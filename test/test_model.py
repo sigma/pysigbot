@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from models import *
+from common.models import *
 
 class TestModelVariables(TestCase):
 

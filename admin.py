@@ -1,7 +1,8 @@
 from google.appengine.api import xmpp, users
 from google.appengine.ext import webapp, db
 from google.appengine.ext.webapp.util import run_wsgi_app
-from models import DbUserRole
+
+from common.models import DbUserRole
 
 class AdminHandler(webapp.RequestHandler):
     def get(self):
@@ -13,7 +14,7 @@ class AdminHandler(webapp.RequestHandler):
             u.put()
         else:
             u = DbUserRole(role=DbUserRole._ADMIN_ROLE,
-                         account=user)
+                           account=user)
             u.put()
 
         self.response.out.write("""Hello, %s. You're now defined as '%s'""" %
