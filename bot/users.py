@@ -1,4 +1,4 @@
-from common.models import DbUserRole
+from common.models import DbUserRole, UserVariable
 from google.appengine.ext import db
 from google.appengine.api import users as gusers
 
@@ -15,6 +15,9 @@ class User(object):
             user_role.put()
         self.db_role = user_role
 
+    def delete(self):
+        self.db_role.delete()
+
     def isAdmin(self):
         return self.db_role.role == DbUserRole._ADMIN_ROLE
 
@@ -24,3 +27,16 @@ class User(object):
 
     def __repr__(self):
         return self.db_role.account.nickname()
+
+    # Commodity accessors for UserVariable objects
+    def getVariable(self, name, *args, **kwds):
+        """see UserVariable.get() for arguments"""
+        return UserVariable(self, name).get(*args, **kwds)
+
+    def setVariable(self, name, *args, **kwds):
+        """see UserVariable.set() for arguments"""
+        return UserVariable(self, name).set(*args, **kwds)
+
+    def deleteVariable(self, name, *args, **kwds):
+        """see UserVariable.delete() for arguments"""
+        return UserVariable(self, name).delete(*args, **kwds)

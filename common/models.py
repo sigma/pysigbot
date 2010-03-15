@@ -83,7 +83,9 @@ class UserVariable(_Variable):
 
     def __init__(self, user, name):
         _Variable.__init__(self, name)
-        self._user = user
+        # store a string in any case, so that user can be a User object, or
+        # just it's nickname
+        self._user = user.__repr__()
 
     def __repr__(self):
         return "%s/%s/%s" % (self.__class__, self._user, self._name)
