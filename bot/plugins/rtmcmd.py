@@ -1,6 +1,8 @@
 from bot.commands import PrefixCommand
 from google.appengine.api import memcache
-from google.appengine.ext import db
+
+from common.models import AdminVariable
+
 from rtmlib import Rtm
 import logging
 
@@ -15,9 +17,9 @@ class RtmRepository(object):
             rtm = None
 
         if rtm is None:
-            api = db.GqlQuery("SELECT * FROM DbAdminVariable WHERE name = :1", "rtm.api").get().value
-            secret = db.GqlQuery("SELECT * FROM DbAdminVariable WHERE name = :1", "rtm.secret").get().value
-            token = db.GqlQuery("SELECT * FROM DbUserVariable WHERE name = :1", "%s/rtm.token" % (user)).get().value
+            api = AdminVariable("rtm.api").get()
+            secret = AdminVariable("rtm.secret").get()
+            token = user.getVariable("rtm.token")
             rtm = Rtm(api, secret, token)
             try:
                 if not memcache.add(rtmkey, rtm, 36000):
