@@ -16,11 +16,14 @@ def _buildMsg(mocker, sender, cmd):
 
     fake_msg.sender
     mocker.result(sender)
+    mocker.count(0, None)
 
     fake_msg.body
     mocker.result(cmd)
+    mocker.count(0, None)
 
     fake_msg.reply(ANY)
+    mocker.count(0, None)
 
     return fake_msg
 
@@ -48,3 +51,9 @@ class TestAdminSet(MockerTestCase):
         Command.dispatch(self.admin_msg)
         var = AdminVariable(_var)
         self.assertEqual(var.get(), _val)
+
+    def testUnauthorizedSetCmd(self):
+        Command.dispatch(self.admin_msg)
+        user = User(_user_sender)
+        val = user.getVariable(_var)
+        self.assertEqual(val, None)

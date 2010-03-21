@@ -1,5 +1,3 @@
-from google.appengine.api.datastore_errors import BadQueryError
-
 from bot.commands import PrefixCommand
 from common.models import AdminVariable
 

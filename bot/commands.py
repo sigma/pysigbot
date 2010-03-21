@@ -64,12 +64,3 @@ class PrefixCommand(Command):
         return [txt]
 
 from bot.plugins import *
-
-class MessageStub(object):
-
-    def __init__(self, body, sender):
-        self.body = body
-        self.sender = sender
-
-    def reply(self, msg):
-        print msg
