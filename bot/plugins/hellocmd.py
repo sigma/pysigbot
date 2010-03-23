@@ -4,8 +4,11 @@ class HelloCmd(PrefixCommand):
 
     PREFIX = 'hello'
 
+    ADMIN_TPL = "Greetings Master %s. Your wish is my command !"
+    USER_TPL = "Greetings %s."
+
     def run(self):
         if self.sender.isAdmin():
-            return "Greetings Master %s. Your wish is my command !" % (self.sender)
+            return self.ADMIN_TPL % (self.sender)
         else:
-            return "Greetings %s." % (self.sender)
+            return self.USER_TPL % (self.sender)
