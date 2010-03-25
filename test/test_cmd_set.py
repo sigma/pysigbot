@@ -90,3 +90,8 @@ class TestNonAdminSet(MockerTestCase):
     def testSetCmdAgain(self):
         Command.dispatch(self.admin_msg)
         self.assertEqual(User(_user_sender).getAdminVariable(_var), None)
+
+for cls in [TestSet, TestIncompleteSet, TestAdminSet, TestNonAdminSet]:
+    cls.status = "stable"
+    cls.component = "plugins"
+    cls.plugin = "set"

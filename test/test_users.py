@@ -24,3 +24,6 @@ class TestUser(TestCase):
         self.assertEqual(self.user.getVariable(var), val)
         self.user.deleteVariable(var)
         self.assertEqual(self.user.getVariable(var), None)
+
+TestUser.status = "stable"
+TestUser.component = "user"

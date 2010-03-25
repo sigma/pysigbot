@@ -76,3 +76,6 @@ class TestModelVariables(TestCase):
 
     def testSetAdminVariableNoCreate(self):
         self._testSetVariableNoCreate(self.admin_var)
+
+TestModelVariables.status = "stable"
+TestModelVariables.component = "model"

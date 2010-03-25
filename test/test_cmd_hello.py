@@ -55,3 +55,8 @@ class TestAdminHello(MockerTestCase):
         user = User(_admin_sender)
         user.makeAdmin()
         Command.dispatch(self.admin_msg)
+
+for cls in [TestUserHello, TestCaseHello, TestAdminHello]:
+    cls.status = "stable"
+    cls.component = "plugins"
+    cls.plugin = "hello"

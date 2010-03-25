@@ -21,11 +21,14 @@ def _buildMsg(mocker):
 
     return fake_msg
 
-class TestUserHello(MockerTestCase):
+class TestUserNoCmd(MockerTestCase):
 
     def setUp(self):
         self.msg = _buildMsg(self.mocker)
         self.mocker.replay()
 
-    def testHelloCmd(self):
+    def testNoCmd(self):
         Command.dispatch(self.msg)
+
+TestUserNoCmd.status = "stable"
+TestUserNoCmd.component = "cmd"

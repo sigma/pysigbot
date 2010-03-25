@@ -24,7 +24,7 @@ def _buildMsg(mocker, sender):
 
     return fake_msg
 
-class TestUserHello(MockerTestCase):
+class TestUserEcho(MockerTestCase):
 
     def setUp(self):
         self.user_msg = _buildMsg(self.mocker, _user_sender)
@@ -32,3 +32,7 @@ class TestUserHello(MockerTestCase):
 
     def testEchoCmd(self):
         Command.dispatch(self.user_msg)
+
+TestUserEcho.status = "stable"
+TestUserEcho.component = "plugins"
+TestUserEcho.plugin = "echo"
