@@ -2,6 +2,9 @@ from bot.users import User
 
 class Command(object):
 
+    COMMAND_NOT_FOUND_MSG = "Need some help finding your words?"
+    COMMAND_NO_ANSWER_MSG = "Ack !"
+
     @classmethod
     def dispatch(cls, message):
         for c in cls.__subclasses__():
@@ -15,12 +18,12 @@ class Command(object):
                     else:
                         message.reply(answer)
                 else:
-                    message.reply("Ack !")
+                    message.reply(cls.COMMAND_NO_ANSWER_MSG)
                 return
-        message.reply("Need some help finding your words?")
+        message.reply(cls.COMMAND_NOT_FOUND_MSG)
 
     @classmethod
-    def accept(cls, txt, sender):
+    def accept(cls, txt, sender): # pragma nocover
         pass
 
     def __init__(self, txt, sender):
@@ -33,7 +36,7 @@ class Command(object):
     def getSender(self, sender):
         return User(sender.partition("/")[0])
 
-    def run(self):
+    def run(self): # pragma nocover
         pass
 
 class PrefixCommand(Command):

@@ -30,16 +30,16 @@ class _Variable(object):
     def __repr__(self):
         return "%s/%s" % (self.__class__, self._name)
 
-    def _getModelObject(self):
+    def _getModelObject(self): # pragma nocover
         raise AbstractMethod("_getModelObject")
 
-    def _createModelObject(self, value):
+    def _createModelObject(self, value): # pragma nocover
         raise AbstractMethod("_createModelObject")
 
     def get(self, default=None, create=False):
         try:
             mo = self._getModelObject()
-        except BadQueryError, e:
+        except BadQueryError, e: # pragma nocover
             mo = None
         if mo is None:
             mo = self._createModelObject(default)
@@ -50,7 +50,7 @@ class _Variable(object):
     def set(self, value, create=True):
         try:
             mo = self._getModelObject()
-        except BadQueryError, e:
+        except BadQueryError, e: # pragma nocover
             mo = None
 
         if mo is None:
@@ -63,7 +63,7 @@ class _Variable(object):
     def delete(self):
         try:
             mo = self._getModelObject()
-        except BadQueryError, e:
+        except BadQueryError, e: # pragma nocover
             mo = None
         if mo is not None:
             mo.delete()

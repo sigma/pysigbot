@@ -66,3 +66,13 @@ class TestModelVariables(TestCase):
 
     def testGetAdminVariableSet(self):
         self._testGetVariableSet(self.admin_var)
+
+    def _testSetVariableNoCreate(self, var):
+        ref_value = "plopi"
+        self.assertRaises(NoSuchVariable, var.set, ref_value, create=False)
+
+    def testSetUserVariableNoCreate(self):
+        self._testSetVariableNoCreate(self.user_var)
+
+    def testSetAdminVariableNoCreate(self):
+        self._testSetVariableNoCreate(self.admin_var)
