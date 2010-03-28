@@ -1,4 +1,4 @@
-import urllib
+from urllib import urlopen, urlencode
 from md5 import md5
 
 from api import API
@@ -11,38 +11,68 @@ class RtmError(Exception): pass
 
 class RtmApiError(RtmError): pass
 
-class Rtm():
+class ApiNode(object):
 
-    def __init__(self, apiKey, secret, token, validator=None):
-        self.apiKey = apiKey
-        self.secret = secret
-        self.token = token
+    def __init__(self, fqn, definition):
+        self.__fqn = fqn
+        self.__def = definition
+        self.__callable = False
+        self.__req_args = None
+        self.__opt_args = None
+        if isinstance(self.__def, dict):
+            # category object
+            for key, value in self.__def.items():
+                self.__dict__[key] = ApiNode("%s.%s" % (self.__fqn, key), value)
+        else:
+            # method object
+            self.__callable = True
+            self.__req_args, self.__opt_args = self.__def
 
-        self.validationFunction = validator
+    def __call__(self, rtm, **kwargs):
+        if self.__callable:
+            for a in self.__req_args:
+                if a not in kwargs:
+                    raise TypeError, 'Required parameter (%s) missing' % (a)
 
-        # this enables one to do 'rtm.tasks.getList()', for example
-        for prefix, attributes in API.items():
-            setattr(self, prefix,
-                    RtmApiCategory(self, "rtm." + prefix, attributes))
+            for a in kwargs:
+                if a not in self.__req_args + self.__opt_args:
+                    warnings.warn('Invalid parameter (%s)' % (param))
 
-    def _sign(self, params):
-        "Sign the parameters with MD5 hash"
-        pairs = ''.join(['%s%s' % (k,v) for k,v in self._sortedItems(params)])
-        return md5(self.secret+pairs).hexdigest()
+            return rtm._get(method=self.__fqn,
+                            auth_token=rtm._token,
+                            **kwargs)
+        else:
+            raise TypeError, "%s is not a method !" % (self.__fqn)
 
-    def _sortedItems(self, dictionary):
-        "Return a list of (key, value) sorted based on keys"
-        keys = dictionary.keys()
-        keys.sort()
-        for key in keys:
-            yield key, dictionary[key]
+class ApiCtxt(object):
+
+    def __init__(self, rtm, node):
+        self.__rtm = rtm
+        self.__node = node
+
+    def __getattr__(self, attr):
+        node = getattr(self.__node, attr)
+        return ApiCtxt(self.__rtm, node)
+
+    def __call__(self, **kwargs):
+        return self.__node(self.__rtm, **kwargs)
+
+_rtm_node = ApiNode('rtm', API)
+
+class RtmTransport(object):
+
+    def __init__(self):
+        pass
+
+    def get(self, params):
+        return self._readJson(self._openURL(SERVICE_URL, params))
 
     def _openURL(self, url, queryArgs=None):
         if queryArgs:
-            url = url + '?' + urllib.urlencode(queryArgs)
-        return urllib.urlopen(url).read()
+            url = url + '?' + urlencode(queryArgs)
+        return urlopen(url).read()
 
-    def readJson(self, txt):
+    def _readJson(self, txt):
         data = DottedDict('ROOT', json.loads(txt))
         rsp = data.rsp
 
@@ -52,50 +82,37 @@ class Rtm():
         else:
             return rsp
 
-    def handleApiError(self, f):
-        f.trap(RtmApiError)
+class Rtm():
 
-    def get(self, **params):
+    def __init__(self, apiKey, secret, token):
+        self._apiKey = apiKey
+        self._secret = secret
+        self._token = token
+        self._transport = RtmTransport()
+        self.__rtm = ApiCtxt(self, _rtm_node)
+
+    def __getattr__(self, attr):
+        return getattr(self.__rtm, attr)
+
+    def _sign(self, params):
+        "Sign the parameters with MD5 hash"
+        pairs = ''.join(['%s%s' % (k,v) for k,v in self._sortedItems(params)])
+        return md5(self._secret+pairs).hexdigest()
+
+    def _sortedItems(self, dictionary):
+        "Return a list of (key, value) sorted based on keys"
+        keys = dictionary.keys()
+        keys.sort()
+        for key in keys:
+            yield key, dictionary[key]
+
+    def _get(self, **params):
         "Get the XML response for the passed `params`."
-        params['api_key'] = self.apiKey
+        params['api_key'] = self._apiKey
         params['format'] = 'json'
         params['api_sig'] = self._sign(params)
 
-        return self.readJson(self._openURL(SERVICE_URL, params))
-
-class RtmApiCategory:
-    "See the `API` structure and `RTM.__init__`"
-
-    def __init__(self, rtm, prefix, attributes):
-        self.rtm = rtm
-        self.prefix = prefix
-
-        for name in attributes.keys():
-            definition = attributes[name]
-            if type(definition) is dict:
-                setattr(self, name, RtmApiCategory(self.rtm, self.prefix + '.' + name, definition))
-            else:
-                aname = '%s.%s' % (self.prefix, name)
-                rargs, oargs = definition
-                func = self.makeMethod(aname, rargs, oargs)
-                setattr(self, name, func)
-
-    def makeMethod(self, name, required, optional):
-        return lambda **params: self.callMethod(name, required, optional, **params)
-
-    def callMethod(self, aname, rargs, oargs, **params):
-        # Sanity checks
-        for requiredArg in rargs:
-            if requiredArg not in params:
-                raise TypeError, 'Required parameter (%s) missing' % requiredArg
-
-        for param in params:
-            if param not in rargs + oargs:
-                warnings.warn('Invalid parameter (%s)' % param)
-
-        return self.rtm.get(method=aname,
-                            auth_token=self.rtm.token,
-                            **params)
+        return self._transport.get(params)
 
 class DottedDict(object):
     "Make dictionary items accessible via the object-dot notation."

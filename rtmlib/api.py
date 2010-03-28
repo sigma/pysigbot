@@ -66,29 +66,30 @@ API = {
         'setTags': (['timeline', 'list_id', 'taskseries_id', 'task_id'],
                     ['tags']),
         'setURL': (['timeline', 'list_id', 'taskseries_id', 'task_id'],
-                   ['url',]),
-        'uncomplete': [('timeline', 'list_id', 'taskseries_id', 'task_id'), ()],
+                   ['url']),
+        'uncomplete': (['timeline', 'list_id', 'taskseries_id', 'task_id'], []),
         'notes': {
-            'add': [('timeline', 'list_id', 'taskseries_id', 'task_id', 'note_title', 'note_text'), ()],
-            'delete': [('timeline', 'note_id'), ()],
-            'edit': [('timeline', 'note_id', 'note_title', 'note_text'), ()]
+            'add': (['timeline', 'list_id', 'taskseries_id', 'task_id',
+                     'note_title', 'note_text'], []),
+            'delete': (['timeline', 'note_id'], []),
+            'edit': (['timeline', 'note_id', 'note_title', 'note_text'], [])
             },
         },
     'test': {
-        'echo': [(), ()],
-        'login': [(), ()]
+        'echo': ([], []),
+        'login': ([], [])
         },
     'time': {
-        'convert': [('to_timezone',), ('from_timezone', 'time')],
-        'parse': [('text',), ('timezone', 'dateformat')]
+        'convert': (['to_timezone'], ['from_timezone', 'time']),
+        'parse': (['text'], ['timezone', 'dateformat'])
         },
     'timelines': {
-        'create': [(), ()]
+        'create': ([], [])
         },
     'timezones': {
-        'getList': [(), ()]
+        'getList': ([], [])
         },
     'transactions': {
-        'undo': [('timeline', 'transaction_id'), ()]
+        'undo': (['timeline', 'transaction_id'], [])
         },
     }
