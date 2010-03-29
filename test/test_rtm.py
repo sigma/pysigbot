@@ -2,27 +2,17 @@ from mocker import MockerTestCase, ANY
 
 from rtmlib.rtm import Rtm, SERVICE_URL, DottedDict
 
-class TestRtmSanity(MockerTestCase):
+API_KEY = "dummy key"
+SECRET  = "dummy secret"
+TOKEN   = "dummy token"
 
-    def setUp(self):
-        self.rtm = Rtm(apiKey="dummy key",
-                       secret="dummy secret",
-                       token="dummy token")
+SAMPLE_REQUEST = {'api_sig': '27d94386de9f6b9fc9901549b50a5ef8',
+                  'auth_token': 'dummy token',
+                  'api_key': 'dummy key',
+                  'method': 'rtm.tasks.getList',
+                  'format': 'json'}
 
-    def testAccessors(self):
-        self.assertTrue(callable(self.rtm.lists.delete))
-        self.assertTrue(callable(self.rtm.auth.getToken))
-
-    def testTasksGetList(self):
-        obj = self.mocker.patch(self.rtm._transport)
-
-        obj._openURL(SERVICE_URL,
-                {'api_sig': '27d94386de9f6b9fc9901549b50a5ef8',
-                 'auth_token': 'dummy token',
-                 'api_key': 'dummy key',
-                 'method': 'rtm.tasks.getList',
-                 'format': 'json'})
-        self.mocker.result("""{"rsp":
+SAMPLE_RESPONSE = """{"rsp":
      {"stat":"ok",
       "tasks":{
             "rev":"gw4ycm4ios8wg4480ck8kcskgwksc4k",
@@ -47,13 +37,30 @@ class TestRtmSanity(MockerTestCase):
                                         "deleted":"",
                                         "priority":"N",
                                         "postponed":"0",
-                                        "estimate":""}}]}]}}}""")
+                                        "estimate":""}}]}]}}}"""
+
+class TestRtmSanity(MockerTestCase):
+
+    def setUp(self):
+        self.rtm = Rtm(apiKey=API_KEY,
+                       secret=SECRET,
+                       token=TOKEN)
+
+    def testAccessors(self):
+        self.assertTrue(callable(self.rtm.lists.delete))
+        self.assertTrue(callable(self.rtm.auth.getToken))
+
+    def testTasksGetList(self):
+        obj = self.mocker.patch(self.rtm._transport)
+
+        obj._openURL(SERVICE_URL, SAMPLE_REQUEST)
+        self.mocker.result(SAMPLE_RESPONSE)
         self.mocker.replay()
 
         resp = self.rtm.tasks.getList()
         self.assertTrue(isinstance(resp, DottedDict))
         self.assertTrue(resp.stat == "ok")
 
-TestRtmSanity.status = "unstable"
+TestRtmSanity.status = "stable"
 TestRtmSanity.component = "lib"
 TestRtmSanity.lib = "rtm"
