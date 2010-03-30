@@ -13,7 +13,7 @@ class RtmRepository(object):
         rtmkey = "rtm.%s" % (user)
         try:
             rtm = memcache.get(rtmkey)
-        except:
+        except: # pragma nocover
             rtm = None
 
         if rtm is None:
@@ -22,7 +22,7 @@ class RtmRepository(object):
             token = user.getVariable("rtm.token")
             rtm = Rtm(api, secret, token)
             try:
-                if not memcache.add(rtmkey, rtm, 36000):
+                if not memcache.add(rtmkey, rtm, 36000): # pragma nocover
                     logging.error("Memcache set failed.")
             except:
                 pass
@@ -32,15 +32,9 @@ class RtmCmd(PrefixCommand):
 
     PREFIX = 'rtm'
 
-    def run(self):
-        return "rtm " + self.args[0]
-
 class RtmTasksCmd(RtmCmd):
 
     PREFIX = 'tasks'
-
-    def run(self):
-        return "rtm.tasks " + self.args[0]
 
 class RtmTasksListCmd(RtmTasksCmd):
 
@@ -54,9 +48,6 @@ class RtmTasksListCmd(RtmTasksCmd):
 class RtmListsCmd(RtmCmd):
 
     PREFIX = 'lists'
-
-    def run(self):
-        return "rtm.lists " + self.args[0]
 
 class RtmListsListCmd(RtmListsCmd):
 

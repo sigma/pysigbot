@@ -2,7 +2,7 @@ from urllib import urlopen, urlencode
 from md5 import md5
 
 from api import API
-import simplejson as json
+import django.utils.simplejson as json
 
 SERVICE_URL = 'http://api.rememberthemilk.com/services/rest/'
 AUTH_SERVICE_URL = 'http://www.rememberthemilk.com/services/auth/'

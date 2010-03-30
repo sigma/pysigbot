@@ -9,7 +9,7 @@ class Command(object):
     def dispatch(cls, message):
         for c in cls.__subclasses__():
             inst = c.accept(message.body, message.sender)
-            if inst is not None:
+            if inst is not None and hasattr(inst, 'run'):
                 answer = inst.run()
                 if answer is not None:
                     if type(answer) is list:
