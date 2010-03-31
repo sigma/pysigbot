@@ -7,65 +7,51 @@ _user_sender = "john.doe@example.com"
 _cmd_1 = "rtm tasks list"
 _cmd_2 = "rtm lists list"
 
-def _buildMsg(mocker, sender, cmd):
-    fake_msg = mocker.mock()
-
-    fake_msg.sender
-    mocker.result(sender)
-    mocker.count(0, None)
-
-    fake_msg.body
-    mocker.result(cmd)
-    mocker.count(0, None)
-
-    fake_msg.reply(ANY)
-
-    return fake_msg
-
 class TestRtm(MockerTestCase):
 
+    def _expect(self, expr):
+        return self.expect(expr).count(0,None)
+
+    def _buildMsg(self, sender, cmd):
+        fake_msg = self.mocker.mock()
+
+        self._expect(fake_msg.sender).result(sender)
+        self._expect(fake_msg.body).result(cmd)
+        self._expect(fake_msg.reply(ANY))
+
+        return fake_msg
+
     def setUp(self):
-        pass
+        task = self.mocker.mock()
+        self._expect(task.id).result("456789")
+        tasks_list = self.mocker.mock()
+        self._expect(tasks_list.tasks.list).result([task])
 
-    def testTasksList(self):
-        user_msg = _buildMsg(self.mocker, _user_sender, _cmd_1)
-
-        t = self.mocker.mock()
-        self.expect(t.id).result("foobar")
-
-        l = self.mocker.mock()
-        self.expect(l.tasks.list).result([t])
+        list = self.mocker.mock()
+        self._expect(list.id).result("123456")
+        self._expect(list.name).result("plop")
+        lists_list = self.mocker.mock()
+        self._expect(lists_list.lists.list).result([list])
 
         rtm = self.mocker.mock()
-        self.expect(rtm.tasks.getList()).result(l)
+        self._expect(rtm.tasks.getList()).result(tasks_list)
+        self._expect(rtm.lists.getList()).result(lists_list)
 
         cls = self.mocker.replace("rtmlib.Rtm")
-        self.expect(cls(None, None, None)).nospec().result(rtm)
+        self._expect(cls(None, None, None)).nospec().result(rtm)
+
+        self.msg = [self._buildMsg(_user_sender, _cmd_1),
+                    self._buildMsg(_user_sender, _cmd_2)]
 
         self.mocker.replay()
 
+    def testTasksList(self):
+        user_msg = self.msg[0]
         Command.dispatch(user_msg)
 
     def testListsList(self):
-        user_msg = _buildMsg(self.mocker, _user_sender, _cmd_2)
-
-        t = self.mocker.mock()
-        self.expect(t.id).result(123456)
-        self.expect(t.name).result("plop")
-
-        l = self.mocker.mock()
-        self.expect(l.lists.list).result([t])
-
-        rtm = self.mocker.mock()
-        self.expect(rtm.lists.getList()).result(l)
-
-        cls = self.mocker.replace("rtmlib.Rtm")
-        self.expect(cls(None, None, None)).nospec().result(rtm)
-
-        self.mocker.replay()
-
+        user_msg = self.msg[1]
         Command.dispatch(user_msg)
-
 
 TestRtm.status = "unstable"
 TestRtm.component = "plugins"
