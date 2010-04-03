@@ -1,16 +1,18 @@
 from mocker import MockerTestCase, ANY
+from urllib import urlencode
 
-from rtmlib.rtm import Rtm, SERVICE_URL, DottedDict
+from rtmlib.rtm import Rtm, SERVICE_URL, DottedDict, RtmApiError
 
 API_KEY = "dummy key"
 SECRET  = "dummy secret"
 TOKEN   = "dummy token"
 
-SAMPLE_REQUEST = {'api_sig': '27d94386de9f6b9fc9901549b50a5ef8',
-                  'auth_token': 'dummy token',
-                  'api_key': 'dummy key',
-                  'method': 'rtm.tasks.getList',
-                  'format': 'json'}
+SAMPLE_REQUEST = (SERVICE_URL + '?' +
+                  urlencode({'api_sig': '27d94386de9f6b9fc9901549b50a5ef8',
+                             'auth_token': 'dummy token',
+                             'api_key': 'dummy key',
+                             'method': 'rtm.tasks.getList',
+                             'format': 'json'}))
 
 SAMPLE_RESPONSE = """{"rsp":
      {"stat":"ok",
@@ -39,6 +41,12 @@ SAMPLE_RESPONSE = """{"rsp":
                                         "postponed":"0",
                                         "estimate":""}}]}]}}}"""
 
+SAMPLE_ERROR = """{"rsp":
+     {"stat":"fail",
+      "err":{
+          "msg":"sample error",
+          "code":"123"}}}"""
+
 class TestRtmSanity(MockerTestCase):
 
     def setUp(self):
@@ -53,7 +61,7 @@ class TestRtmSanity(MockerTestCase):
     def testTasksGetList(self):
         obj = self.mocker.patch(self.rtm._transport)
 
-        obj._openURL(SERVICE_URL, SAMPLE_REQUEST)
+        obj._urlopen(SAMPLE_REQUEST)
         self.mocker.result(SAMPLE_RESPONSE)
         self.mocker.replay()
 
@@ -61,6 +69,15 @@ class TestRtmSanity(MockerTestCase):
         self.assertTrue(isinstance(resp, DottedDict))
         self.assertTrue(resp.stat == "ok")
 
-TestRtmSanity.status = "stable"
+    def testTasksGetListError(self):
+        obj = self.mocker.patch(self.rtm._transport)
+
+        obj._urlopen(SAMPLE_REQUEST)
+        self.mocker.result(SAMPLE_ERROR)
+        self.mocker.replay()
+
+        self.assertRaises(RtmApiError, self.rtm.tasks.getList)
+
+TestRtmSanity.status = "unstable"
 TestRtmSanity.component = "lib"
 TestRtmSanity.lib = "rtm"

@@ -17,7 +17,7 @@ class Command(object):
                             message.reply(line)
                     else:
                         message.reply(answer)
-                else:
+                else: # pragma nocover
                     message.reply(cls.COMMAND_NO_ANSWER_MSG)
                 return
         message.reply(cls.COMMAND_NOT_FOUND_MSG)
@@ -30,7 +30,7 @@ class Command(object):
         self.args = self.tokenizeArguments(txt)
         self.sender = self.getSender(sender)
 
-    def tokenizeArguments(self, txt):
+    def tokenizeArguments(self, txt): # pragma nocover
         return txt.split()
 
     def getSender(self, sender):

@@ -30,18 +30,18 @@ class ApiNode(object):
 
     def __call__(self, rtm, **kwargs):
         if self.__callable:
-            for a in self.__req_args:
+            for a in self.__req_args: # pragma nocover
                 if a not in kwargs:
                     raise TypeError, 'Required parameter (%s) missing' % (a)
 
-            for a in kwargs:
+            for a in kwargs: # pragma nocover
                 if a not in self.__req_args + self.__opt_args:
                     warnings.warn('Invalid parameter (%s)' % (param))
 
             return rtm._get(method=self.__fqn,
                             auth_token=rtm._token,
                             **kwargs)
-        else:
+        else: # pragma nocover
             raise TypeError, "%s is not a method !" % (self.__fqn)
 
 class ApiCtxt(object):
@@ -67,10 +67,14 @@ class RtmTransport(object):
     def get(self, params):
         return self._readJson(self._openURL(SERVICE_URL, params))
 
+    # this will be mocked
+    def _urlopen(self, url): # pragma nocover
+        return urlopen(url).read()
+
     def _openURL(self, url, queryArgs=None):
         if queryArgs:
             url = url + '?' + urlencode(queryArgs)
-        return urlopen(url).read()
+        return self._urlopen(url)
 
     def _readJson(self, txt):
         data = DottedDict('ROOT', json.loads(txt))
@@ -135,8 +139,6 @@ class DottedDict(object):
             yield index, item
             index += 1
 
-    def __repr__(self):
+    def __repr__(self): # pragma nocover
         children = [c for c in dir(self) if not c.startswith('_')]
-        return 'dotted <%s> : %s' % (
-            self._name,
-            ', '.join(children))
+        return 'dotted <%s> : %s' % (self._name, ', '.join(children))

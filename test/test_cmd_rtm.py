@@ -53,6 +53,6 @@ class TestRtm(MockerTestCase):
         user_msg = self.msg[1]
         Command.dispatch(user_msg)
 
-TestRtm.status = "unstable"
+TestRtm.status = "stable"
 TestRtm.component = "plugins"
 TestRtm.plugin = "rtm"
